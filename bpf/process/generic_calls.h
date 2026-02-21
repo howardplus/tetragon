@@ -45,6 +45,7 @@ generic_start_process_filter(void *ctx, struct bpf_map_def *calls)
 		return 0;
 	msg->func_id = config->func_id;
 	msg->retprobe_id = 0;
+	msg->tracing_policy_id = config->tracing_policy_id;
 
 	/* Initialize selector index to 0 */
 	msg->sel.curr = 0;

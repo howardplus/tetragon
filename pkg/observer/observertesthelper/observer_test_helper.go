@@ -333,7 +333,7 @@ func getDefaultSensors(tb testing.TB, initialSensor *sensors.Sensor, opts ...Tes
 	var sens []sensors.SensorIface
 
 	if tp != nil {
-		sens, err = sensors.SensorsFromPolicy(tp, policyfilter.NoFilterID)
+		sens, err = sensors.SensorsFromPolicy(tp, tracingpolicy.NoTracingPolicyID, policyfilter.NoFilterID)
 		if err != nil {
 			return nil, err
 		}

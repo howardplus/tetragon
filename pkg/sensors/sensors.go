@@ -202,7 +202,7 @@ type policyHandler interface {
 	// PolicyHandler returns a Sensor for a given policy
 	// sensors that support policyfilter can use the filterID to implement filtering.
 	// sensors that do not support policyfilter need to return an error if filterID != policyfilter.NoFilterID
-	PolicyHandler(policy tracingpolicy.TracingPolicy, filterID policyfilter.PolicyID) (SensorIface, error)
+	PolicyHandler(policy tracingpolicy.TracingPolicy, tpID tracingpolicy.TracingPolicyID, filterID policyfilter.PolicyID) (SensorIface, error)
 }
 
 type probeLoader interface {
@@ -239,7 +239,7 @@ type LoadProbeArgs struct {
 
 func GetMergedSensorFromParserPolicy(tp tracingpolicy.TracingPolicy) (SensorIface, error) {
 	// NB: use a filter id of 0, so no filtering will happen
-	sis, err := SensorsFromPolicy(tp, policyfilter.NoFilterID)
+	sis, err := SensorsFromPolicy(tp, tracingpolicy.NoTracingPolicyID, policyfilter.NoFilterID)
 	if err != nil {
 		return nil, err
 	}

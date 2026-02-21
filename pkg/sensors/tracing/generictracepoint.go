@@ -37,6 +37,7 @@ import (
 	"github.com/cilium/tetragon/pkg/sensors/program"
 	"github.com/cilium/tetragon/pkg/syscallinfo"
 	"github.com/cilium/tetragon/pkg/tracepoint"
+	"github.com/cilium/tetragon/pkg/tracingpolicy"
 
 	gt "github.com/cilium/tetragon/pkg/generictypes"
 )
@@ -74,6 +75,8 @@ type genericTracepoint struct {
 
 	Spec     *v1alpha1.TracepointSpec
 	policyID policyfilter.PolicyID
+
+	tracingPolicyID tracingpolicy.TracingPolicyID
 
 	// for tracepoints that have a GetUrl or DnsLookup action, we store the table of arguments.
 	actionArgs idtable.Table
@@ -394,16 +397,17 @@ func createGenericTracepoint(
 	}
 
 	ret := &genericTracepoint{
-		tableId:       idtable.UninitializedEntryID,
-		Info:          &tp,
-		Spec:          conf,
-		args:          tpArgs,
-		policyID:      polInfo.policyID,
-		policyName:    polInfo.name,
-		customHandler: polInfo.customHandler,
-		message:       msgField,
-		tags:          tagsField,
-		raw:           conf.Raw,
+		tableId:         idtable.UninitializedEntryID,
+		Info:            &tp,
+		Spec:            conf,
+		args:            tpArgs,
+		policyID:        polInfo.policyID,
+		policyName:      polInfo.name,
+		tracingPolicyID: polInfo.tracingPolicyID,
+		customHandler:   polInfo.customHandler,
+		message:         msgField,
+		tags:            tagsField,
+		raw:             conf.Raw,
 	}
 
 	genericTracepointTable.AddEntry(ret)

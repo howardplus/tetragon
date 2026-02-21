@@ -1,0 +1,31 @@
+# This tracing policy 'connect-ratelimit-tracepolicy" reports 
+# outbound TCP connections to any IP address other than those
+# within the 127.0.0.0/8 CIDR, rate limited to one event every 5 seconds.
+# The "tracingpolicy" scope indicates that similar events triggered by
+# the same tracing policy are counted towards the same ratelimit bucket.
+#
+# Description:
+#  Report outbound TCP connections outside loopback rate limited to 5s
+#
+
+apiVersion: cilium.io/v1alpha1
+kind: TracingPolicy
+metadata:
+  name: "connect-ratelimit-tracingpolicy"
+spec:
+  kprobes:
+  - call: "tcp_connect"
+    syscall: false
+    args:
+    - index: 0
+      type: "sock"
+    selectors:
+    - matchArgs:
+      - index: 0
+        operator: "NotDAddr"
+        values:
+        - "127.0.0.0/8"
+      matchActions:
+      - action: Post
+        rateLimit: "10s"
+        rateLimitScope: "tracingpolicy"

@@ -53,7 +53,7 @@ func loadGenericSensorTest(t *testing.T, spec *v1alpha1.TracingPolicySpec) *sens
 	tus.LoadInitialSensor(t)
 	tus.LoadSensor(t, testsensor.GetTestSensor())
 
-	ret, err := sensors.SensorsFromPolicy(tp, policyfilter.NoFilterID)
+	ret, err := sensors.SensorsFromPolicy(tp, tracingpolicy.NoTracingPolicyID, policyfilter.NoFilterID)
 	if err != nil {
 		t.Fatalf("GetSensorsFromParserPolicy failed: %v", err)
 	} else if len(ret) != 1 {

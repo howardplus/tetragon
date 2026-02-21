@@ -88,12 +88,14 @@ const (
 	ActionRateLimitScopeThread = iota
 	ActionRateLimitScopeProcess
 	ActionRateLimitScopeGlobal
+	ActionRateLimitScopeTracingPolicy
 )
 
 var actionRateLimitScope = map[string]uint32{
-	"thread":  ActionRateLimitScopeThread,
-	"process": ActionRateLimitScopeProcess,
-	"global":  ActionRateLimitScopeGlobal,
+	"thread":        ActionRateLimitScopeThread,
+	"process":       ActionRateLimitScopeProcess,
+	"global":        ActionRateLimitScopeGlobal,
+	"tracingpolicy": ActionRateLimitScopeTracingPolicy,
 }
 
 // Action argument table entry (for URL and FQDN arguments)

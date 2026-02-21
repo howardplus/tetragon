@@ -12,6 +12,7 @@ import (
 
 func (h policyHandler) PolicyHandler(
 	_ tracingpolicy.TracingPolicy,
+	_ tracingpolicy.TracingPolicyID,
 	_ policyfilter.PolicyID,
 ) (sensors.SensorIface, error) {
 	return nil, constants.ErrWindowsNotSupported

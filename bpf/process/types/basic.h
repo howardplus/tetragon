@@ -221,7 +221,7 @@ struct event_config {
 	 */
 	__u32 policy_id;
 	__u32 flags;
-	__u32 pad;
+	__u32 tracing_policy_id;
 	struct config_btf_arg btf_arg[EVENT_CONFIG_MAX_ARG][MAX_BTF_ARG_DEPTH];
 	struct config_usdt_arg usdt_arg[EVENT_CONFIG_MAX_USDT_ARG];
 	struct config_reg_arg reg_arg[EVENT_CONFIG_MAX_REG_ARG];
@@ -2417,12 +2417,19 @@ rate_limit(__u64 ratelimit_interval, __u64 ratelimit_scope, struct msg_generic_k
 	switch (ratelimit_scope) {
 	case ACTION_RATE_LIMIT_SCOPE_THREAD:
 		key->tid = e->tid;
+		key->tracing_policy_id = 0;
 		break;
 	case ACTION_RATE_LIMIT_SCOPE_PROCESS:
 		key->tid = e->current.pid;
+		key->tracing_policy_id = 0;
 		break;
 	case ACTION_RATE_LIMIT_SCOPE_GLOBAL:
 		key->tid = 0;
+		key->tracing_policy_id = 0;
+		break;
+	case ACTION_RATE_LIMIT_SCOPE_TRACE_POLICY:
+		key->tid = 0;
+		key->tracing_policy_id = e->tracing_policy_id;
 		break;
 	default:
 		return false;
@@ -2430,27 +2437,31 @@ rate_limit(__u64 ratelimit_interval, __u64 ratelimit_scope, struct msg_generic_k
 
 	// Clean the heap
 	probe_read(key->data, MAX_POSSIBLE_ARGS * KEY_BYTES_PER_ARG, ro_heap);
-	dst = key->data;
 
-	for (i = 0; i < MAX_POSSIBLE_ARGS; i++) {
-		if (e->argsoff[i] >= e->common.size)
-			break;
-		if (i < MAX_POSSIBLE_ARGS - 1)
-			arg_size = e->argsoff[i + 1] - e->argsoff[i];
-		else
-			arg_size = e->common.size - e->argsoff[i];
-		if (arg_size > 0) {
-			key_index = e->argsoff[i] & 16383;
-			if (arg_size > KEY_BYTES_PER_ARG)
-				arg_size = KEY_BYTES_PER_ARG;
-			asm volatile("%[arg_size] &= 0x3f;\n" // ensure this mask is greater than KEY_BYTES_PER_ARG
-				     : [arg_size] "+r"(arg_size)
-				     :);
-			asm volatile("%[index] &= 0xff;\n"
-				     : [index] "+r"(index)
-				     :);
-			probe_read(&dst[index], arg_size, &e->args[key_index]);
-			index += arg_size;
+	// Tracing policy scope does not rate limit based on event details in the data
+	if (!key->tracing_policy_id) {
+		dst = key->data;
+
+		for (i = 0; i < MAX_POSSIBLE_ARGS; i++) {
+			if (e->argsoff[i] >= e->common.size)
+				break;
+			if (i < MAX_POSSIBLE_ARGS - 1)
+				arg_size = e->argsoff[i + 1] - e->argsoff[i];
+			else
+				arg_size = e->common.size - e->argsoff[i];
+			if (arg_size > 0) {
+				key_index = e->argsoff[i] & 16383;
+				if (arg_size > KEY_BYTES_PER_ARG)
+					arg_size = KEY_BYTES_PER_ARG;
+				asm volatile("%[arg_size] &= 0x3f;\n" // ensure this mask is greater than KEY_BYTES_PER_ARG
+						: [arg_size] "+r"(arg_size)
+						:);
+				asm volatile("%[index] &= 0xff;\n"
+						: [index] "+r"(index)
+						:);
+				probe_read(&dst[index], arg_size, &e->args[key_index]);
+				index += arg_size;
+			}
 		}
 	}
 

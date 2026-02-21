@@ -20,6 +20,13 @@ type TracingPolicy interface {
 	TpInfo() string
 }
 
+type TracingPolicyID uint64
+
+const (
+	noTracingPolicyID = 0 // reserved value
+	NoTracingPolicyID = TracingPolicyID(noTracingPolicyID)
+)
+
 // revive:disable:exported
 
 // TracingPolicyNamespaced is an interface for tracing policy applied on a specific namespace

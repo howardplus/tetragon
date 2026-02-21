@@ -18,13 +18,15 @@
 #define ACTION_RATE_LIMIT_SCOPE_THREAD	0
 #define ACTION_RATE_LIMIT_SCOPE_PROCESS 1
 #define ACTION_RATE_LIMIT_SCOPE_GLOBAL	2
+#define ACTION_RATE_LIMIT_SCOPE_TRACE_POLICY   3
 
 struct ratelimit_key {
 	__u64 func_id;
 	__u64 action;
 	__u64 tid;
+	__u64 tracing_policy_id;
 	__u8 data[MAX_POSSIBLE_ARGS * KEY_BYTES_PER_ARG];
-};
+} __attribute__((packed));
 
 struct ratelimit_value {
 	__u64 ktime;

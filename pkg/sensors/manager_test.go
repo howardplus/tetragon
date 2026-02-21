@@ -28,7 +28,7 @@ type dummyHandler struct {
 	e error
 }
 
-func (d *dummyHandler) PolicyHandler(_ tracingpolicy.TracingPolicy, _ policyfilter.PolicyID) (SensorIface, error) {
+func (d *dummyHandler) PolicyHandler(_ tracingpolicy.TracingPolicy, _ tracingpolicy.TracingPolicyID, _ policyfilter.PolicyID) (SensorIface, error) {
 	return d.s, d.e
 }
 

@@ -87,6 +87,7 @@ func (kp *enforcerPolicy) enforcerDel(name string) bool {
 
 func (kp *enforcerPolicy) PolicyHandler(
 	policy tracingpolicy.TracingPolicy,
+	tpID tracingpolicy.TracingPolicyID,
 	_ policyfilter.PolicyID,
 ) (sensors.SensorIface, error) {
 

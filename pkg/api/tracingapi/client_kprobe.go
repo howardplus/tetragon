@@ -56,6 +56,7 @@ type MsgGenericKprobe struct {
 	ActionId      uint64
 	ActionArgId   uint32
 	Tid           uint32 // The recorded TID that triggered the event
+	TracePolicyID int64
 	KernelStackID int64
 	UserStackID   int64
 }
@@ -663,7 +664,7 @@ type EventConfig struct {
 	ArgReturnAction int32                                            `align:"argreturnaction"`
 	PolicyID        uint32                                           `align:"policy_id"`
 	Flags           uint32                                           `align:"flags"`
-	Pad             uint32                                           `align:"pad"`
+	TracingPolicyID uint32                                           `align:"tracing_policy_id"`
 	BTFArg          [EventConfigMaxArgs][MaxBTFArgDepth]ConfigBTFArg `align:"btf_arg"`
 	UsdtArg         [EventConfigMaxUsdtArgs]ConfigUsdtArg            `align:"usdt_arg"`
 	RegArg          [EventConfigMaxRegArgs]ConfigRegArg              `align:"reg_arg"`

@@ -199,6 +199,7 @@ generic_tracepoint_event(struct generic_tracepoint_event_arg *ctx)
 	msg->idx = 0;
 	msg->func_id = config->func_id;
 	msg->retprobe_id = 0;
+	msg->tracing_policy_id = config->tracing_policy_id;
 
 	msg->a0 = ({
 		unsigned long ctx_off = config->off[0];

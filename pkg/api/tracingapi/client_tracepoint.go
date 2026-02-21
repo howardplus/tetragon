@@ -17,6 +17,7 @@ type MsgGenericTracepoint struct {
 	ActionId      uint64
 	ActionArgId   uint32
 	Tid           uint32 // The recorded TID that triggered the event
+	TracePointID  int64
 	KernelStackID int64
 	UserStackID   int64
 }

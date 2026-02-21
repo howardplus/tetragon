@@ -55,15 +55,15 @@ func (h *handler) unload(col *collection, unpin bool) error {
 	return col.unload(unpin)
 }
 
-func (h *handler) allocPolicyID() uint64 {
+func (h *handler) allocPolicyID() tracingpolicy.TracingPolicyID {
 	ret := h.nextPolicyID
 	h.nextPolicyID++
-	return ret
+	return tracingpolicy.TracingPolicyID(ret)
 }
 
 // revive:disable:exported
-func SensorsFromPolicy(tp tracingpolicy.TracingPolicy, filterID policyfilter.PolicyID) ([]SensorIface, error) {
-	return sensorsFromPolicyHandlers(tp, filterID)
+func SensorsFromPolicy(tp tracingpolicy.TracingPolicy, tpID tracingpolicy.TracingPolicyID, filterID policyfilter.PolicyID) ([]SensorIface, error) {
+	return sensorsFromPolicyHandlers(tp, tpID, filterID)
 }
 
 // revive:enable:exported
@@ -76,7 +76,7 @@ func SensorsFromPolicy(tp tracingpolicy.TracingPolicy, filterID policyfilter.Pol
 //	policyfilter.NoFilterID, nil if no filtering is needed
 //	policyfilter.PolicyID(tpID), nil if filtering is needed and policyfilter has been successfully set up
 //	_, err if an error occurred
-func (h *handler) updatePolicyFilter(tp tracingpolicy.TracingPolicy, tpID uint64) (policyfilter.PolicyID, error) {
+func (h *handler) updatePolicyFilter(tp tracingpolicy.TracingPolicy, tpID tracingpolicy.TracingPolicyID) (policyfilter.PolicyID, error) {
 	var namespace string
 	if tpNs, ok := tp.(tracingpolicy.TracingPolicyNamespaced); ok {
 		namespace = tpNs.TpNamespace()
@@ -146,7 +146,7 @@ func (h *handler) addTracingPolicy(op *tracingPolicyAdd) error {
 	}
 	col.policyfilterID = uint64(filterID)
 
-	sensors, err := sensorsFromPolicyHandlers(op.tp, filterID)
+	sensors, err := sensorsFromPolicyHandlers(op.tp, tpID, filterID)
 	if err != nil {
 		col.err = err
 		col.state = LoadErrorState
@@ -476,10 +476,10 @@ func (h *handler) listCollections(policyOnly bool) []*Collection {
 	return ret
 }
 
-func sensorsFromPolicyHandlers(tp tracingpolicy.TracingPolicy, filterID policyfilter.PolicyID) ([]SensorIface, error) {
+func sensorsFromPolicyHandlers(tp tracingpolicy.TracingPolicy, tpID tracingpolicy.TracingPolicyID, filterID policyfilter.PolicyID) ([]SensorIface, error) {
 	var sensors []SensorIface
 	for n, s := range registeredPolicyHandlers {
-		sensor, err := s.PolicyHandler(tp, filterID)
+		sensor, err := s.PolicyHandler(tp, tpID, filterID)
 		if err != nil {
 			return nil, fmt.Errorf("policy handler '%s' failed loading policy '%s': %w", n, tp.TpName(), err)
 		}

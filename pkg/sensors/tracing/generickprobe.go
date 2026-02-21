@@ -47,6 +47,7 @@ import (
 	"github.com/cilium/tetragon/pkg/sensors"
 	"github.com/cilium/tetragon/pkg/sensors/base"
 	"github.com/cilium/tetragon/pkg/sensors/program"
+	"github.com/cilium/tetragon/pkg/tracingpolicy"
 
 	gt "github.com/cilium/tetragon/pkg/generictypes"
 )
@@ -511,12 +512,13 @@ func preValidateKprobes(log logger.FieldLogger, kprobes []v1alpha1.KProbeSpec, l
 }
 
 type addKprobeIn struct {
-	useMulti      bool
-	sensorPath    string
-	policyName    string
-	policyID      policyfilter.PolicyID
-	customHandler eventhandler.Handler
-	selMaps       *selectors.KernelSelectorMaps
+	useMulti        bool
+	sensorPath      string
+	policyName      string
+	policyID        policyfilter.PolicyID
+	tracingPolicyID tracingpolicy.TracingPolicyID
+	customHandler   eventhandler.Handler
+	selMaps         *selectors.KernelSelectorMaps
 }
 
 type hasMaps struct {
@@ -582,12 +584,13 @@ func createGenericKprobeSensor(
 	}
 
 	in := addKprobeIn{
-		useMulti:      useMulti,
-		sensorPath:    name,
-		policyID:      polInfo.policyID,
-		policyName:    polInfo.name,
-		customHandler: polInfo.customHandler,
-		selMaps:       selMaps,
+		useMulti:        useMulti,
+		sensorPath:      name,
+		policyID:        polInfo.policyID,
+		policyName:      polInfo.name,
+		tracingPolicyID: polInfo.tracingPolicyID,
+		customHandler:   polInfo.customHandler,
+		selMaps:         selMaps,
 	}
 
 	dups := make(map[string]int)
@@ -693,6 +696,7 @@ func addKprobe(funcName string, instance int, f *v1alpha1.KProbeSpec, in *addKpr
 	}
 
 	eventConfig := initEventConfig()
+	eventConfig.TracingPolicyID = uint32(in.tracingPolicyID)
 	eventConfig.PolicyID = uint32(in.policyID)
 	if len(f.ReturnArgAction) > 0 {
 		if !config.EnableLargeProgs() {

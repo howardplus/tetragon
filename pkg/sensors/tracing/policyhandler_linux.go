@@ -22,13 +22,14 @@ import (
 )
 
 type policyInfo struct {
-	name          string
-	namespace     string
-	policyID      policyfilter.PolicyID
-	customHandler eventhandler.Handler
-	policyConf    *program.Map
-	policyStats   *program.Map
-	specOpts      *specOptions
+	name            string
+	namespace       string
+	policyID        policyfilter.PolicyID
+	tracingPolicyID tracingpolicy.TracingPolicyID
+	customHandler   eventhandler.Handler
+	policyConf      *program.Map
+	policyStats     *program.Map
+	specOpts        *specOptions
 }
 
 func newPolicyInfo(
@@ -143,6 +144,7 @@ func (pi *policyInfo) policyConfMap(prog *program.Program) *program.Map {
 
 func (h policyHandler) PolicyHandler(
 	policy tracingpolicy.TracingPolicy,
+	tpID tracingpolicy.TracingPolicyID,
 	policyID policyfilter.PolicyID,
 ) (sensors.SensorIface, error) {
 
@@ -171,6 +173,8 @@ func (h policyHandler) PolicyHandler(
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse options: %w", err)
 	}
+
+	polInfo.tracingPolicyID = tpID
 
 	if len(spec.KProbes) > 0 {
 		name := "generic_kprobe"
